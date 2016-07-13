@@ -60,9 +60,7 @@ class UUIDPkField(UUIDField):
 # MODELS
 
 class DashboardSetting(models.Model):
-    """Settings related to the dashboard stored as key-value pairs.
-
-    """
+    """Settings related to the dashboard stored as key-value pairs."""
 
     id = models.AutoField(primary_key=True, db_column='pk')
     name = models.CharField(max_length=255, db_column='name')
@@ -75,9 +73,7 @@ class DashboardSetting(models.Model):
 
 
 class Access(models.Model):
-    """Information about an upload to AtoM for a SIP.
-
-    """
+    """Information about an upload to AtoM for a SIP."""
 
     id = models.AutoField(primary_key=True, db_column='pk')
     sipuuid = models.CharField(max_length=36, db_column='SIPUUID', blank=True)
@@ -134,9 +130,7 @@ class Access(models.Model):
 
 
 class DublinCore(models.Model):
-    """DublinCore metadata associated with a SIP or Transfer.
-
-    """
+    """DublinCore metadata associated with a SIP or Transfer."""
 
     id = models.AutoField(primary_key=True, db_column='pk')
 
@@ -189,15 +183,14 @@ class DublinCore(models.Model):
 
 
 class MetadataAppliesToType(models.Model):
-    """The type of unit (SIP, DIP, Transfer, etc.) that a piece of metadata
-    applies to. `RightsStatement` and `DublinCore` instances reference these
-    models.
+    """Type of unit (SIP, DIP, Transfer) that a piece of metadata applies to.
+
+    `RightsStatement` and `DublinCore` instances reference these models.
 
     TODO replace this with choices fields.
 
     Note: 'SIP', 'Transfer' and 'File' seem to be the standard (only possible?)
     unit types.
-
     """
 
     id = UUIDPkField()
@@ -222,7 +215,6 @@ class Event(models.Model):
 
     Question: are events transitory or do they persist once a unit no longer
     exists?
-
     """
 
     id = models.AutoField(primary_key=True, db_column='pk', editable=False)
@@ -257,12 +249,10 @@ class Event(models.Model):
 
 
 class Derivation(models.Model):
-    """A derivation represents the link between an original file and its
-    normalized counterpart via a specified event.
+    """Represents link between a file and its normalized counterpart via an event.
 
     E.g., the link between the original and a preservation copy, or between the
     original and an access copy.
-
     """
 
     id = models.AutoField(primary_key=True, db_column='pk', editable=False)
@@ -287,15 +277,10 @@ class Derivation(models.Model):
 
 
 class UnitHiddenManager(models.Manager):
-    """Manager to endow all Unit models with `is_hidden` (boolean) attributes.
-
-    """
+    """Manager to endow all Unit models with `is_hidden` (boolean) attributes."""
 
     def is_hidden(self, uuid):
-        """Return True if the unit (SIP, Transfer) with uuid is hidden.
-
-        """
-
+        """Return True if the unit (SIP, Transfer) with uuid is hidden."""
         try:
             return self.get_queryset().get(uuid=uuid).hidden
         except:
@@ -307,7 +292,6 @@ class SIP(models.Model):
 
     Note: an AIC is an Archival Information Collection, i.e., a collection of
     AIPs. Question: can AICs contain AICs?
-
     """
 
     uuid = models.CharField(
@@ -358,9 +342,7 @@ class TransferManager(models.Manager):
 
 
 class Transfer(models.Model):
-    """Information on Transfer units.
-
-    """
+    """Information on Transfer units."""
 
     uuid = models.CharField(
         max_length=36, primary_key=True, db_column='transferUUID')
@@ -394,15 +376,13 @@ class Transfer(models.Model):
 
 
 class SIPArrange(models.Model):
-    """Information about arranged files: original and arranged location,
-    current status.
+    """Information about arranged files: original and arranged location, current status.
 
     Question: What is the point of arranging files? (Assuming it means altering
     their position in a directory structure.)
 
     Question: How does this model get mapped to the `main_siparrange` table? Is
     this Django magick?
-
     """
 
     original_path = models.CharField(
@@ -426,13 +406,11 @@ class SIPArrange(models.Model):
 
 
 class SIPArrangeAccessMapping(models.Model):
-    """Maps directories within SIPArrange to descriptive objects in a remote
-    archival management system.
+    """Maps directories within SIPArrange to descriptive objects in a remote archival management system.
 
     Note: it appears that this model corresponds to no table in the database
     and is simply created and held in memory, e.g., via `get_or_create` in
     components/access/views.py
-
     """
 
     ARCHIVESSPACE = "archivesspace"
@@ -449,9 +427,7 @@ class SIPArrangeAccessMapping(models.Model):
 
 
 class File(models.Model):
-    """Information about Files in units (Transfers, SIPs).
-
-    """
+    """Information about Files in units (Transfers, SIPs)."""
 
     uuid = models.CharField(
         max_length=36, primary_key=True, db_column='fileUUID')
@@ -494,8 +470,7 @@ class File(models.Model):
 
 
 class FileFormatVersion(models.Model):
-    """Link between a File and the FormatVersion (table `fpr_formatversion`) it
-    is identified as.
+    """Link between a File and the FormatVersion it is identified as.
 
     TODO? Replace this with a foreign key from File to FormatVersion.
 
@@ -505,7 +480,6 @@ class FileFormatVersion(models.Model):
         FROM FilesIdentifiedIDs
         INNER JOIN fpr_formatversion AS fv
         ON fileID=fv.uuid;
-
     """
 
     id = models.AutoField(
@@ -524,10 +498,7 @@ class FileFormatVersion(models.Model):
 
 
 class Job(models.Model):
-    """The jobs that make up a micro-service chain link, e.g., "Determine which
-    files to identify" in micro-service "Identify file format".
-
-    """
+    """Represent the execution of `MicroServiceChainLink` instances."""
 
     jobuuid = UUIDField(db_column='jobUUID', primary_key=True)
     jobtype = models.CharField(max_length=250, db_column='jobType', blank=True)
@@ -564,10 +535,9 @@ class Job(models.Model):
 
 
 class Task(models.Model):
-    """Represents a task, i.e., the execution of a specific program (Python or
-    shell script), possibly against a specific file. Each job can have multiple
-    tasks.
+    """Represents execution of a specific program against a specific file.
 
+    Each `Job` can have multiple tasks.
     """
 
     taskuuid = models.CharField(
@@ -609,9 +579,7 @@ class Task(models.Model):
 
 
 class Agent(models.Model):
-    """PREMIS Agents created for the system.
-
-    """
+    """PREMIS Agents created for the system."""
 
     id = models.AutoField(primary_key=True, db_column='pk', editable=False)
     identifiertype = models.TextField(
@@ -637,7 +605,6 @@ class Report(models.Model):
 
     Note: the sole place where it appears that `Report` instances are created
     is in MCPClient/lib/clientScripts/emailFailReport.py.
-
     """
 
     id = models.AutoField(primary_key=True, db_column='pk')
@@ -682,9 +649,7 @@ class Report(models.Model):
 
 
 class RightsStatement(models.Model):
-    """A statement of rights, as applied to a SIP, Transfer or File instance.
-
-    """
+    """A statement of rights, as applied to a SIP, Transfer or File instance."""
 
     id = models.AutoField(primary_key=True, db_column='pk')
     metadataappliestotype = models.ForeignKey(
@@ -726,10 +691,7 @@ class RightsStatement(models.Model):
 
 
 class RightsStatementCopyright(models.Model):
-    """Each `RightsStatement` instance can have zero or many
-    `RightsStatementCopyright` instances.
-
-    """
+    """Each `RightsStatement` instance can have zero or many `RightsStatementCopyright` instances."""
 
     id = models.AutoField(primary_key=True, db_column='pk', editable=False)
     rightsstatement = models.ForeignKey(
@@ -761,10 +723,7 @@ class RightsStatementCopyright(models.Model):
 
 
 class RightsStatementCopyrightDocumentationIdentifier(models.Model):
-    """Each `RightsStatementCopyright` instance can have zero or many
-    `RightsStatementCopyrightDocumentationIdentifier` instances.
-
-    """
+    """Each `RightsStatementCopyright` instance can have zero or many `RightsStatementCopyrightDocumentationIdentifier` instances."""
 
     id = models.AutoField(primary_key=True, db_column='pk', editable=False)
     rightscopyright = models.ForeignKey(
@@ -786,10 +745,7 @@ class RightsStatementCopyrightDocumentationIdentifier(models.Model):
 
 
 class RightsStatementCopyrightNote(models.Model):
-    """Each `RightsStatementCopyright` instance can have zero or many
-    `RightsStatementCopyrightNote` instances.
-
-    """
+    """Each `RightsStatementCopyright` instance can have zero or many `RightsStatementCopyrightNote` instances."""
 
     id = models.AutoField(primary_key=True, db_column='pk', editable=False)
     rightscopyright = models.ForeignKey(
@@ -804,10 +760,7 @@ class RightsStatementCopyrightNote(models.Model):
 
 
 class RightsStatementLicense(models.Model):
-    """Each `RightsStatement` instance can have zero or many
-    `RightsStatementLicense` instances.
-
-    """
+    """Each `RightsStatement` instance can have zero or many `RightsStatementLicense` instances."""
 
     id = models.AutoField(primary_key=True, db_column='pk', editable=False)
     rightsstatement = models.ForeignKey(
@@ -832,10 +785,7 @@ class RightsStatementLicense(models.Model):
 
 
 class RightsStatementLicenseDocumentationIdentifier(models.Model):
-    """Each `RightsStatementLicense` instance can have zero or many
-    `RightsStatementLicenseDocumentationIdentifier` instances.
-
-    """
+    """Each `RightsStatementLicense` instance can have zero or many `RightsStatementLicenseDocumentationIdentifier` instances."""
 
     id = models.AutoField(primary_key=True, db_column='pk', editable=False)
     rightsstatementlicense = models.ForeignKey(
@@ -856,10 +806,7 @@ class RightsStatementLicenseDocumentationIdentifier(models.Model):
 
 
 class RightsStatementLicenseNote(models.Model):
-    """Each `RightsStatementLicense` instance can have zero or many
-    `RightsStatementLicenseNote` instances.
-
-    """
+    """Each `RightsStatementLicense` instance can have zero or many `RightsStatementLicenseNote` instances."""
 
     id = models.AutoField(primary_key=True, db_column='pk', editable=False)
     rightsstatementlicense = models.ForeignKey(
@@ -873,10 +820,7 @@ class RightsStatementLicenseNote(models.Model):
 
 
 class RightsStatementRightsGranted(models.Model):
-    """Each `RightsStatement` instance can have zero or many
-    `RightsStatementRightsGranted` instances.
-
-    """
+    """Each `RightsStatement` instance can have zero or many `RightsStatementRightsGranted` instances."""
 
     id = models.AutoField(primary_key=True, db_column='pk')
     rightsstatement = models.ForeignKey(
@@ -898,10 +842,7 @@ class RightsStatementRightsGranted(models.Model):
 
 
 class RightsStatementRightsGrantedNote(models.Model):
-    """Each `RightsStatementRightsGranted` instance can have zero or many
-    `RightsStatementRightsGrantedNote` instances.
-
-    """
+    """Each `RightsStatementRightsGranted` instance can have zero or many `RightsStatementRightsGrantedNote` instances."""
 
     id = models.AutoField(primary_key=True, db_column='pk', editable=False)
     rightsgranted = models.ForeignKey(
@@ -916,10 +857,7 @@ class RightsStatementRightsGrantedNote(models.Model):
 
 
 class RightsStatementRightsGrantedRestriction(models.Model):
-    """Each `RightsStatementRightsGranted` instance can have zero or many
-    `RightsStatementRightsGrantedRestriction` instances.
-
-    """
+    """Each `RightsStatementRightsGranted` instance can have zero or many `RightsStatementRightsGrantedRestriction` instances."""
 
     id = models.AutoField(primary_key=True, db_column='pk')
     rightsgranted = models.ForeignKey(
@@ -933,10 +871,7 @@ class RightsStatementRightsGrantedRestriction(models.Model):
 
 
 class RightsStatementStatuteInformation(models.Model):
-    """Each `RightsStatement` instance can have zero or many
-    `RightsStatementStatuteInformation` instances.
-
-    """
+    """Each `RightsStatement` instance can have zero or many `RightsStatementStatuteInformation` instances."""
 
     id = models.AutoField(primary_key=True, db_column='pk')
     rightsstatement = models.ForeignKey(
@@ -966,10 +901,7 @@ class RightsStatementStatuteInformation(models.Model):
 
 
 class RightsStatementStatuteInformationNote(models.Model):
-    """Each `RightsStatementStatuteInformation` instance can have zero or many
-    `RightsStatementStatuteInformationNote` instances.
-
-    """
+    """Each `RightsStatementStatuteInformation` instance can have zero or many `RightsStatementStatuteInformationNote` instances."""
 
     id = models.AutoField(primary_key=True, db_column='pk')
     rightsstatementstatute = models.ForeignKey(
@@ -984,10 +916,7 @@ class RightsStatementStatuteInformationNote(models.Model):
 
 
 class RightsStatementStatuteDocumentationIdentifier(models.Model):
-    """Each `RightsStatementStatuteInformation` instance can have zero or many
-    `RightsStatementStatuteDocumentationIdentifier` instances.
-
-    """
+    """Each `RightsStatementStatuteInformation` instance can have zero or many `RightsStatementStatuteDocumentationIdentifier` instances."""
 
     id = models.AutoField(primary_key=True, db_column='pk', editable=False)
     rightsstatementstatute = models.ForeignKey(
@@ -1010,10 +939,7 @@ class RightsStatementStatuteDocumentationIdentifier(models.Model):
 
 
 class RightsStatementOtherRightsInformation(models.Model):
-    """Each `RightsStatement` instance can have zero or many
-    `RightsStatementOtherRightsInformation` instances.
-
-    """
+    """Each `RightsStatement` instance can have zero or many `RightsStatementOtherRightsInformation` instances."""
 
     id = models.AutoField(primary_key=True, db_column='pk', editable=False)
     rightsstatement = models.ForeignKey(
@@ -1039,10 +965,7 @@ class RightsStatementOtherRightsInformation(models.Model):
 
 
 class RightsStatementOtherRightsDocumentationIdentifier(models.Model):
-    """Each `RightsStatementOtherRightsInformation` instance can have zero or
-    many `RightsStatementOtherRightsDocumentationIdentifier` instances.
-
-    """
+    """Each `RightsStatementOtherRightsInformation` instance can have zero or many `RightsStatementOtherRightsDocumentationIdentifier` instances."""
 
     id = models.AutoField(primary_key=True, db_column='pk', editable=False)
     rightsstatementotherrights = models.ForeignKey(
@@ -1065,10 +988,7 @@ class RightsStatementOtherRightsDocumentationIdentifier(models.Model):
 
 
 class RightsStatementOtherRightsInformationNote(models.Model):
-    """Each `RightsStatementOtherRightsInformation` instance can have zero or
-    many `RightsStatementOtherRightsInformationNote` instances.
-
-    """
+    """Each `RightsStatementOtherRightsInformation` instance can have zero or many `RightsStatementOtherRightsInformationNote` instances."""
 
     id = models.AutoField(primary_key=True, db_column='pk')
     rightsstatementotherrights = models.ForeignKey(
@@ -1083,10 +1003,7 @@ class RightsStatementOtherRightsInformationNote(models.Model):
 
 
 class RightsStatementLinkingAgentIdentifier(models.Model):
-    """Each `RightsStatement` instance can have zero or many
-    `RightsStatementLinkingAgentIdentifier` instances.
-
-    """
+    """Each `RightsStatement` instance can have zero or many `RightsStatementLinkingAgentIdentifier` instances."""
 
     id = models.AutoField(primary_key=True, db_column='pk')
     rightsstatement = models.ForeignKey(
@@ -1109,9 +1026,7 @@ class RightsStatementLinkingAgentIdentifier(models.Model):
 
 
 class MicroServiceChain(models.Model):
-    """A micro-service chain is conceptually a sequence of micro-service
-    (links) that determine how the contents of a watched directory are
-    processed.
+    """Sequence of micro-service (links) that determine how the contents of a watched directory are processed.
 
     Example SQL to get the starting link and chain description for the
     "Standard Transfer" watched directory::
@@ -1125,7 +1040,6 @@ class MicroServiceChain(models.Model):
             ON ch.startingLink=link.pk
             WHERE watchedDirectoryPath LIKE
             '%activeTransfers/standardTransfer%';
-
     """
 
     id = UUIDPkField()
@@ -1146,10 +1060,10 @@ class MicroServiceChain(models.Model):
 
 
 class MicroServiceChainLink(models.Model):
-    """A micro-service chain link is a micro-service. In the dashboard's
-    Transfer pane, for example, the "Micro-service: Validation" row corresponds
-    to a MS chain link.
+    """A micro-service chain link is conceptually a micro-service.
 
+    In the dashboard's Transfer tab, for example, the "Micro-service:
+    Validation" row corresponds to a MS chain link.
     """
 
     id = UUIDPkField()
@@ -1178,16 +1092,15 @@ class MicroServiceChainLink(models.Model):
 
 
 class MicroServiceChainLinkExitCode(models.Model):
-    """Link exit codes control what the next link will be when the current link
-    is finished its work, given a certain exit code. To see the mapping in the
-    DB::
+    """Controls what the next link will be, given the current link and its exit code.
+
+    To see the mapping in the DB::
 
         SELECT microServiceChainLink, exitCode, nextMicroserviceChainLink
         FROM MicroServiceChainLinksExitCodes
         ORDER BY microServiceChainLink;
 
     See `MCPServer/lib/jobChainLink.py`.
-
     """
 
     id = UUIDPkField()
@@ -1211,8 +1124,7 @@ class MicroServiceChainLinkExitCode(models.Model):
 
 
 class MicroServiceChainChoice(models.Model):
-    """The MS Chain Choice model encodes a choice at a given link to activate a
-    new chain.
+    """Encodes a choice at a given link to activate a new chain.
 
     For example, the user may be given the choice to "Approve normalization",
     with the following options: "Redo", "Approve", or "Reject". This choice is
@@ -1230,7 +1142,6 @@ class MicroServiceChainChoice(models.Model):
             JOIN TasksConfigs
             ON TasksConfigs.pk = MicroServiceChainLinks.currentTask
             ORDER BY choiceAvailableAtLink DESC;
-
     """
 
     id = UUIDPkField()
@@ -1255,10 +1166,10 @@ class MicroServiceChainChoice(models.Model):
 
 
 class MicroServiceChoiceReplacementDic(models.Model):
-    """The `replacementdic` attribute is a flat JSON object. A single MS chain
-    link may have many of these "replacement dicts" but the `description`
-    attribute serves to distinguish them.
+    """The ``replacementdic`` attribute is a flat JSON object.
 
+    A single MS chain link may have many of these "replacement dicts" but the
+    `description` attribute serves to distinguish them.
     """
 
     id = UUIDPkField()
@@ -1292,12 +1203,12 @@ class MicroServiceChoiceReplacementDic(models.Model):
 
 
 class TaskType(models.Model):
-    """Collectively, the `TaskType` models simply define a closed vocabulary of
-    task types. An example task type is 'for each file'. The `jobChainLink`
-    makes use of these.
+    """These define a closed vocabulary of task types.
+
+    An example task type is 'for each file'. The `jobChainLink` makes use of
+    these.
 
     TODO: write a better description of what purpose task types serve exactly.
-
     """
 
     id = UUIDPkField()
@@ -1315,8 +1226,7 @@ class TaskType(models.Model):
 
 
 class TaskConfig(models.Model):
-    """Represents a single task within a micro-service chain link, for example,
-    "Job: Approve standard transfer".
+    """Encodes information about a task, primarily its description string and type.
 
     To get the standard transfer's chain, that chain's starting link, and that
     link's current task's description and type::
@@ -1337,7 +1247,6 @@ class TaskConfig(models.Model):
             ON currTask.taskType=currTaskType.pk
             WHERE watchedDirectoryPath LIKE
                 '%activeTransfers/standardTransfer%';
-
     """
 
     id = UUIDPkField()
@@ -1360,10 +1269,11 @@ class TaskConfig(models.Model):
 
 
 class StandardTaskConfig(models.Model):
-    """The `execute` attribute holds the name of an executable; the file
+    """Configuration for a standard task.
+
+    The `execute` attribute holds the name of an executable; the file
     `MCPClient/lib/archivematicaClientModules` maps these `execute` values to
     the paths of the relevant shell or Python executables.
-
     """
 
     id = UUIDPkField()
@@ -1411,9 +1321,10 @@ class StandardTaskConfig(models.Model):
 
 
 class TaskConfigAssignMagicLink(models.Model):
-    """Unclear what this model is for. It seems only to be used in
-    `MCPServer/lib/linkTaskManagerAssignMagicLink.py`.
+    """Unclear what this model is for.
 
+    It seems only to be used in
+    `MCPServer/lib/linkTaskManagerAssignMagicLink.py`.
     """
 
     id = UUIDPkField()
@@ -1429,10 +1340,10 @@ class TaskConfigAssignMagicLink(models.Model):
 
 
 class TaskConfigSetUnitVariable(models.Model):
-    """This model causes `UnitVariable` instances to be updated or created. See
-    `MCPServer/lib/linkTaskManagerSetUnitVariable.py` and
-    `MCPServer/lib/unit.py`.
+    """Causes `UnitVariable` instances to be updated or created.
 
+    See `MCPServer/lib/linkTaskManagerSetUnitVariable.py` and
+    `MCPServer/lib/unit.py`.
     """
 
     id = UUIDPkField()
@@ -1466,10 +1377,7 @@ class TaskConfigUnitVariableLinkPull(models.Model):
 
 
 class UnitVariable(models.Model):
-    """Maps a variable name (`variable`) to a value (`variablevalue`) for a
-    given unit (i.e., a SIP or a Transfer).
-
-    """
+    """Maps a variable name to a value for a given unit."""
 
     id = UUIDPkField()
     unittype = models.CharField(
@@ -1499,9 +1407,7 @@ class UnitVariable(models.Model):
 
 
 class AtkDIPObjectResourcePairing(models.Model):
-    """Note: "Atk" stands for "Archivists' Toolkit".
-
-    """
+    """Note: "Atk" stands for "Archivists' Toolkit"."""
 
     id = models.AutoField(primary_key=True, db_column='pk')
     dipuuid = models.CharField(max_length=50, db_column='dipUUID')
@@ -1535,15 +1441,13 @@ class ArchivesSpaceDIPObjectResourcePairing(models.Model):
 
 
 class ArchivesSpaceDOComponent(models.Model):
-    """Represents a digital object component to be created in ArchivesSpace at
-    the time an AIP is stored by Archivematica.
+    """Represents a digital object component to be created in ArchivesSpace at the time an AIP is stored by Archivematica.
 
     In ArchivesSpace, a digital object component is meant to be parented to a
     digital object record. The workflow in use by the appraisal tab doesn't
     expose digital objects to the user, just components; one digital object
     should be created as a parent for these components before creating the
     components themselves.
-
     """
 
     sip = models.ForeignKey('SIP', to_field='uuid', null=True)
@@ -1575,10 +1479,7 @@ class TransferMetadataSet(models.Model):
 
 
 class TransferMetadataField(models.Model):
-    """These models define the fields that are displayed at
-    `/transfer/component/<uuid>`
-
-    """
+    """Defines the fields that are displayed at `/transfer/component/<uuid>`."""
 
     id = UUIDPkField()
     createdtime = models.DateTimeField(
@@ -1599,9 +1500,7 @@ class TransferMetadataField(models.Model):
 
 
 class TransferMetadataFieldValue(models.Model):
-    """Holds the value for a given field of a transfer metadata set.
-
-    """
+    """Hold the value for a given field of a transfer metadata set."""
 
     id = UUIDPkField()
     createdtime = models.DateTimeField(
@@ -1650,11 +1549,12 @@ class TaxonomyTerm(models.Model):
 
 
 class WatchedDirectory(models.Model):
-    """The watched directories are those that Archivematica watches. When
-    something changes in these directories, the `WatchedDirectory` activates a
-    `MicroServiceChain` instance. See `MCPServer/lib/archivematicaMCP.py`
-    and `MCPServer/lib/watchDirectory.py`.
+    """The directories that Archivematica watches.
 
+    When something changes in these directories, the ``WatchedDirectory``
+    activates a ``MicroServiceChain`` instance. See
+    ``MCPServer/lib/archivematicaMCP.py`` and
+    ``MCPServer/lib/watchDirectory.py``.
     """
 
     id = UUIDPkField()
@@ -1675,9 +1575,7 @@ class WatchedDirectory(models.Model):
 
 
 class WatchedDirectoryExpectedType(models.Model):
-    """One of 'SIP', 'DIP' or 'Transfer'.
-
-    """
+    """One of 'SIP', 'DIP' or 'Transfer'."""
 
     id = UUIDPkField()
     description = models.TextField(null=True)
@@ -1704,11 +1602,10 @@ class FPCommandOutput(models.Model):
 
 
 class FileID(models.Model):
-    """This table duplicates file ID values from FPR formats. It predates the
-    current FPR tables.
+    """Duplicates file ID values from FPR formats.
 
-    This table may be removed in the future.
-
+    This model/table predates the current FPR tables. It may be removed in the
+    future.
     """
 
     id = models.AutoField(primary_key=True, db_column='pk')
@@ -1734,3 +1631,4 @@ class LevelOfDescription(models.Model):
 
     def __unicode__(self):
         return u'{i.sortorder}: {i.name}'.format(i=self)
+
