@@ -219,9 +219,31 @@ def logTaskCompletedSQL(task):
     task = Task.objects.get(taskuuid=taskUUID)
     task.endtime = getUTCDate()
     task.exitcode = exitCode
-    task.stdout = stdOut
-    task.stderror = stdError
+    # ``to_unicode`` here prevents the MCP server from crashing when, e.g.,
+    # stderr contains Latin-1-encoded chars such as \xa9, i.e., the copyright
+    # symbol, cf. #9967.
+    task.stdout = to_unicode(stdOut)
+    task.stderror = to_unicode(stdError)
     task.save()
+
+
+def to_unicode(output):
+    """
+    Attempt to decode ``output`` to Unicode using the 'ascii', 'utf8', and
+    finally 'latin-1' codecs. If all fail, decode using 'ascii', ignoring
+    indecipherable bytes.
+    """
+    try:
+        return unicode(output)
+    except UnicodeDecodeError:
+        try:
+            return unicode(output, 'utf8')
+        except UnicodeDecodeError:
+            try:
+                return unicode(output, 'latin-1')
+            except UnicodeDecodeError:
+                return unicode(output, 'ascii', 'ignore')
+
 
 def logJobCreatedSQL(job):
     """
