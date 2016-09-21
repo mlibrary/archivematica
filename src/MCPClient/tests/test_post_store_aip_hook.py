@@ -31,18 +31,17 @@ class TestDSpaceToArchivesSpace(TestCase):
         models.ArchivesSpaceDOComponent.objects.all().delete()
         rc = post_store_aip_hook.dspace_handle_to_archivesspace(self.sip_uuid)
         assert rc == 1
-        # TODO assert no DSpace calls?
 
-    @my_vcr.use_cassette
     def test_no_dspace(self):
         """It should abort if no DSpace handle found."""
-        rc = post_store_aip_hook.dspace_handle_to_archivesspace(self.sip_uuid)
-        assert rc == 1
-        # TODO assert cassette call?
+        with my_vcr.use_cassette('test_no_dspace.yaml') as c:
+            rc = post_store_aip_hook.dspace_handle_to_archivesspace(self.sip_uuid)
+            assert rc == 1
+            assert c.all_played
 
-    @my_vcr.use_cassette
     def test_dspace_handle_to_archivesspace(self):
         """It should send the DSpace handle to ArchivesSpace."""
-        rc = post_store_aip_hook.dspace_handle_to_archivesspace(self.sip_uuid)
-        assert rc == 0
-        # TODO assert handle stored??
+        with my_vcr.use_cassette('test_dspace_handle_to_archivesspace.yaml') as c:
+            rc = post_store_aip_hook.dspace_handle_to_archivesspace(self.sip_uuid)
+            assert rc == 0
+            assert c.all_played
