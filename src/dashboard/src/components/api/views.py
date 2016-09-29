@@ -89,13 +89,17 @@ def get_unit_status(unit_uuid, unit_type):
         ret['status'] = 'REJECTED'
     elif job.jobtype == 'Remove the processing directory':  # Done storing AIP
         ret['status'] = 'COMPLETE'
-    elif models.Job.objects.filter(sipuuid=unit_uuid).filter(jobtype='Create SIP from transfer objects').exists():
+    elif models.Job.objects\
+            .filter(sipuuid=unit_uuid)\
+            .filter(jobtype='Create SIP from transfer objects').exists():
         ret['status'] = 'COMPLETE'
         # Get SIP UUID
         sips = models.File.objects.filter(transfer_id=unit_uuid, sip__isnull=False).values('sip').distinct()
         if sips:
             ret['sip_uuid'] = sips[0]['sip']
-    elif models.Job.objects.filter(sipuuid=unit_uuid).filter(jobtype='Move transfer to backlog').exists():
+    elif models.Job.objects\
+            .filter(sipuuid=unit_uuid)\
+            .filter(jobtype='Move transfer to backlog').exists():
         ret['status'] = 'COMPLETE'
         ret['sip_uuid'] = 'BACKLOG'
     else:
@@ -245,6 +249,34 @@ def start_transfer_api(request):
 
     response = filesystem_ajax_views.start_transfer(transfer_name, transfer_type, accession, paths, row_ids)
     return helpers.json_response(response)
+
+
+def completed_transfers(request):
+    """Return all completed transfers::
+
+        GET /api/transfer/completed?username=<am-username>&api_key=<am-api-key>
+
+    """
+    if request.method == 'GET':
+        auth_error = authenticate_request(request)
+        response = {}
+        if auth_error is None:
+            error = None
+            approved = []
+            transfers = models.Transfer.objects.filter(hidden=False)
+            for transfer in transfers:
+                status = get_unit_status(transfer.uuid, 'unitTransfer')
+                if status.get('status') == 'COMPLETE':
+                    approved.append(transfer.uuid)
+            response['results'] = approved
+            response['message'] = 'Fetched completed transfers successfully.'
+            return helpers.json_response(response)
+        else:
+            response['message'] = auth_error
+            response['error'] = True
+            return helpers.json_response(response, status_code=403)
+    else:
+        return django.http.HttpResponseNotAllowed(permitted_methods=['GET'])
 
 
 def unapproved_transfers(request):
