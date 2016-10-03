@@ -802,7 +802,7 @@ def index_transfer_files(client, uuid, pathToTransfer, index, type_, status='', 
             create_time = os.stat(filepath).st_ctime
 
             if filename not in ignore_files:
-                printfn('Indexing {} (UUID: {})'.format(relative_path, file_uuid))
+#                printfn('Indexing {} (UUID: {})'.format(relative_path, file_uuid))
 
                 # TODO Index Backlog Location UUID?
                 indexData = {
@@ -827,8 +827,8 @@ def index_transfer_files(client, uuid, pathToTransfer, index, type_, status='', 
                 try_to_index(client, indexData, index, type_)
 
                 files_indexed = files_indexed + 1
-            else:
-                printfn('Skipping indexing {}'.format(relative_path))
+#            else:
+#                printfn('Skipping indexing {}'.format(relative_path))
 
     if files_indexed > 0:
         client.indices.refresh()
