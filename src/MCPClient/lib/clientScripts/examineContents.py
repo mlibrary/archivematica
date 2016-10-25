@@ -11,7 +11,7 @@ def main(target, output):
         # disables all
         '-x', 'all',
         # compressed data processing
-        '-e', 'gzip', '-e', 'base64', '-e', 'hiber', '-e', 'pdf', '-e', 'zip',
+        '-e', 'gzip', '-e', 'base64', '-e', 'hiberfile', '-e', 'pdf', '-e', 'zip', '-e', 'rar',
         # numeric accounts, such as phone numbers and ccns
         '-e', 'accts'
     ]
