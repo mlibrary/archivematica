@@ -12,7 +12,13 @@ def concurrent_instances():
 def main(job, target, output):
     args = [
         'bulk_extractor', target, '-o', output,
-        '-M', '250', '-q', '-1'
+        '-M', '250', '-q', '-1',
+        # disables all
+        '-x', 'all',
+        # compressed data processing
+        '-e', 'gzip', '-e', 'base64', '-e', 'hiber', '-e', 'pdf', '-e', 'zip',
+        # numeric accounts, such as phone numbers and ccns
+        '-e', 'accts'
     ]
     try:
         os.makedirs(output)
