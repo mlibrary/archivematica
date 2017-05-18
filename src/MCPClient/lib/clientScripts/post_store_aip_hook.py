@@ -48,7 +48,7 @@ def dspace_handle_to_archivesspace(sip_uuid):
     # POST Dspace handle to ArchivesSpace
     # Get ArchivesSpace config
     config = models.DashboardSetting.objects.get_dict('upload-archivesspace_v0.0')
-    archivesspace_url = 'http://' + config['host'] + ':' + str(config['port'])
+    archivesspace_url =  config['host'] + ':' + str(config['port'])
 
     # Log in
     url = archivesspace_url + '/users/' + config['user'] + '/login'
