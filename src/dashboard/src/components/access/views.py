@@ -223,7 +223,7 @@ def record_children(client, request, system='', record_id=''):
 
 def get_digital_object_component_path(record_id, component_id, system='archivesspace', create=True):
     mapping = create_arranged_directory(system, record_id)
-    component_path = os.path.join(mapping.arrange_path, 'digital_object_component_{}'.format(component_id), '')
+    component_path = os.path.join(mapping.arrange_path, '')
     if create:
         filesystem_views.create_arrange_directory(component_path)
 
