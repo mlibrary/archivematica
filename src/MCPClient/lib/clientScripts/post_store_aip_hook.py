@@ -68,7 +68,7 @@ def dspace_handle_to_archivesspace(job, sip_uuid):
     # Update
     url = archivesspace_url + digital_object.remoteid
     file_version = {
-        "file_uri": handle,
+        "file_uri": 'http://hdl.handle.net/' + handle,
         "use_statement": config['use_statement'],
         "xlink_show_attribute": config['xlink_show'],
         "xlink_actuate_attribute": config['xlink_actuate'],
