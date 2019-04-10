@@ -37,6 +37,7 @@ def get_as_system_client():
         user=config['user'],
         passwd=config['passwd'],
         repository=config['repository']
+        timeout=60
     )
 
 
